@@ -106,3 +106,4 @@ def main():
     print('expression 4',eg4_term)
 
     compare_complexity(eg3_term,eg4_term)
+main()
