@@ -1,36 +1,65 @@
 from typing import Tuple, List, Dict
 from term import Term
+from typing import Union
+
 from variable import Variable
 class UnificationResult:
     def __init__(self, unifiable: bool, unifier: Dict[Variable, Term]):
         self.unifiable = unifiable
         self.unifier = unifier
-
-def unify(t1: Term, t2: Term) -> UnificationResult:
-    if t1.is_variable():
-        if t1 == t2:
-            return UnificationResult(True, {})
-        elif t1 in t2.complexity():
-            return UnificationResult(False, {})
+    def __str__(self) -> str:
+        s=''
+       # print(self.unifier,'unifier')
+        for i in self.unifier.keys():
+            s+=f'{i}:{self.unifier[i]}'
+        return f'{self.unifiable}:{s}'
+    def print_unifier(self):
+        for i in self.unifier.keys():
+            s+=f'{i}:{self.unifier[i]}'
+        print(f'{self.unifiable}:{s}')
+unfication_dict={}
+def unify(t1: Union[Term,Variable], t2: Union[Term,Variable]) -> UnificationResult:
+    if isinstance(t1,Variable):
+        if(isinstance(t2,Variable)):
+            unfication_dict[t1]=t2
+            return UnificationResult(True,{t1:t2})
+        
         else:
-            return UnificationResult(True, {t1: t2})
-
-    elif t2.is_variable():
-        if t2.name in t1.complexity():
-            return UnificationResult(False, {})
+            # if t1 in t2 where t2 is a term then there is an issue
+            if(t1 in t2.elements()):
+                return UnificationResult(False,{})
+            else:
+                # t1 can be subsituted by t2 then
+                unfication_dict[t1]=t2
+                return UnificationResult(True,{t1,t2})
+    
+    elif isinstance(t2,Variable):
+        if(isinstance(t1,Variable)):
+            unfication_dict[t2]=t1
+            return UnificationResult(True,{t2:t1})
+        
         else:
-            return UnificationResult(True, {t2: t1})
-
+            # if t2 in 12 where t1 is a term then there is an issue
+            if(t2 in t1.elements()):
+                return UnificationResult(False,{})
+            else:
+                # t1 can be subsituted by t2 then
+                unfication_dict[t2]=t1
+                return UnificationResult(True,{t2:t1})
+            
     elif t1.operation != t2.operation:
         return UnificationResult(False, {})
 
     else:
         unifier = {}
         for subterm1, subterm2 in zip(t1.subterms, t2.subterms):
+            print('stage ',subterm1,subterm2)
             subunification = unify(subterm1, subterm2)
             if not subunification.unifiable:
                 return UnificationResult(False, {})
-            unifier.update(subunification.unifier)
+            print('unifier',unifier,subunification)
+            for key, value in subunification.unifier.items():
+                unifier[key] = value
         return UnificationResult(True, unifier)
 
 # Testing the unification algorithm

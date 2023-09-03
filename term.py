@@ -10,6 +10,17 @@ class Term:
         self.operation = operation
         self.subterms = subterms
         self.name=None
+    def __hash__(self) -> int:
+        hash_value=hash(self.operation)
+        for obj in self.subterms:
+            hash_value^=hash(obj)
+        return hash_value
+    def __eq__(self, other):
+        if isinstance(other, Term):  
+            if(self.operation==other.operation and 
+               self.subterms==other.subterms):
+                return True
+        return False
     @classmethod
     def init_from_name(cls, name):
         instance = cls()  # Create an instance of the class
@@ -19,6 +30,18 @@ class Term:
         if isinstance(v,Variable):
             return True
         return False
+    def elements(term):
+        # returns all elements of a term 
+        l=set()
+        for el in term.subterms:
+            if el not in l:
+                l.add(el)
+            if(isinstance(el,Term)):
+                # further break it 
+                l1=el.elements()
+                # add it back into l1
+                l|=l1
+        return l
     def complexity(self):
         if self.is_variable(self):
             return 0  # Variables have complexity 0
@@ -103,7 +126,12 @@ def main():
     # expression 4 x+(y+z)
     eg4_subterm2=Operation("+",[y,z]).result()
     eg4_term=Term("+",x,eg4_subterm2)
-    print('expression 4',eg4_term)
 
+    print('expression 4',eg4_term)
+    eg4_elements=eg4_term.elements()
+    print('the elements are')
+    for el in eg4_elements:
+        print(el,end="\t")
+    print("\n---\n")
     compare_complexity(eg3_term,eg4_term)
 main()
