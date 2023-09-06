@@ -134,4 +134,4 @@ def main():
         print(el,end="\t")
     print("\n---\n")
     compare_complexity(eg3_term,eg4_term)
-main()
+#main()
